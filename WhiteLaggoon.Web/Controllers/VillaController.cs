@@ -80,8 +80,10 @@ namespace WhiteLaggoon.Web.Controllers
             {
                 context.Villas.Remove(obj);
                 context.SaveChanges();
+                TempData["Success"] = "The Villa Has Been Deleted Successfully";
                 return RedirectToAction("Index");
             }
+            TempData["Error"] = "Villa Cannot be Deleted";
             return RedirectToAction("Error","Home");
         }
 
