@@ -38,63 +38,70 @@ namespace WhiteLaggoon.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(VillaNumber obj)
+        public IActionResult Create(VillaNumberMM obj)
         { 
-            var villNum = context.VillaNumbers.Where(n => n.VillaId == obj.VillaId).FirstOrDefault();
-
-            if(villNum != null)
+            var villNum = context.VillaNumbers.Where(n => n.Villa_Number == obj.VillaNumber.Villa_Number).FirstOrDefault();
+               
+            if (obj.VillaNumber.Villa_Number != null && villNum == null)
             {
-                ModelState.AddModelError(nameof(obj.VillaId), "Villa Already Exist");
-                return View(obj);
-            }
-
-            if (ModelState.IsValid)
-            {
-                context.VillaNumbers.Add(obj);
+                context.VillaNumbers.Add(obj.VillaNumber);
                 context.SaveChangesAsync();
                 return RedirectToAction("Index", "VillaNumber");
             } else
             {
-                ModelState.AddModelError(nameof(obj), "");
+                TempData["error"] = "The Villa number is already exist";
             }
+
+            obj.VillaList = context.Villas.ToList().Select(n => new SelectListItem
+            {
+                Text = n.Name,
+                Value = n.Id.ToString()
+            });
+
             return View(obj);
         }
 
         [HttpGet("villaNumberId")]
-        public IActionResult Update(int villaNumberId)
+        public IActionResult UpdateNumber(int villaNumberId)
         {
-            Villa? obj = context.Villas.FirstOrDefault(x => x.Id == villaNumberId);
 
-            if(obj == null)
+            VillaNumberMM villaNumberMM = new VillaNumberMM()
+            {
+                VillaList = context.Villas.ToList().Select(n => new SelectListItem
+                {
+                    Text = n.Name,
+                    Value = n.Id.ToString()
+                }),
+                VillaNumber = context.VillaNumbers.FirstOrDefault(u=>u.VillaId == villaNumberId)
+            };
+         
+             
+            if(villaNumberMM.VillaNumber == null)
             {
                 return RedirectToAction("Error","Home");
             }
 
-            return View(obj);
+            return View(villaNumberMM);
         }
 
         [HttpPost]
-        public IActionResult UpdateVilla(Villa obj)
+        public IActionResult Update(VillaNumberMM obj)
         {
-            if(ModelState.IsValid && obj.Id > 0)
-            {
-                context.Villas.Update(obj);    
+                context.VillaNumbers.Update(obj.VillaNumber);
                 context.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
-            return View();
+                return RedirectToAction("Index", "VillaNumber");
         }
          
-        public IActionResult Delete(int villaNumberId)
+        public IActionResult DeleteNumber(int villaNumberId)
         {
-            Villa? obj = context.Villas.FirstOrDefault(x => x.Id == villaNumberId);
+            VillaNumber? obj = context.VillaNumbers.FirstOrDefault(x => x.VillaId == villaNumberId);
 
             if(obj != null)
             {
-                context.Villas.Remove(obj);
+                context.VillaNumbers.Remove(obj);
                 context.SaveChanges();
                 TempData["Success"] = "The Villa Has Been Deleted Successfully";
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
             TempData["Error"] = "Villa Cannot be Deleted";
             return RedirectToAction("Error","Home");
