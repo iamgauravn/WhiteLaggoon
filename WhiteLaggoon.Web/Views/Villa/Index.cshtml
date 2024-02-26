@@ -31,6 +31,12 @@
                 Occupancy
             </th>
             <th>
+                Image
+            </th>
+            <th>
+                
+            </th>
+            <th>
                 
             </th>
 
@@ -44,6 +50,8 @@
                 <td> @obj.Price </td>
                 <td> @obj.Sqft </td>
                 <td> @obj.Occupancy </td>
+                <td> @obj.ImageUrl </td>
+                <td> <img src="@Url.Content(obj.ImageUrl)" style="width:50px;height:50px" alt="" /> </td>
                 <td> 
                      <div class="w-75 btn-group" role="group">
                          

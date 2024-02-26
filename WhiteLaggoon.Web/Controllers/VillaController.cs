@@ -8,9 +8,11 @@ namespace WhiteLaggoon.Web.Controllers
     public class VillaController : Controller
     {
         private readonly IVillaRepository villaRepo;
-        public VillaController(IVillaRepository villaRepo)
+        private readonly IWebHostEnvironment webHostEnvironment;
+        public VillaController(IVillaRepository villaRepo, IWebHostEnvironment webHostEnvironment)
         {
             this.villaRepo = villaRepo;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -33,6 +35,24 @@ namespace WhiteLaggoon.Web.Controllers
 
             if (ModelState.IsValid)
             {
+
+                if(obj.Image != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(obj.Image.FileName);
+                    string imagePath = Path.Combine(webHostEnvironment.WebRootPath,@"images\Villa");
+
+                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName),FileMode.Create))
+                    {
+                        obj.Image.CopyTo(fileStream);
+                    }
+
+                    obj.ImageUrl = @"image\Villa\" + fileName; 
+
+                } else
+                { 
+                    obj.ImageUrl="https://placehold.co/600x400";
+                }
+
                 villaRepo.Add(obj);
                 villaRepo.Save();
                 return RedirectToAction("Index", "Villa");
